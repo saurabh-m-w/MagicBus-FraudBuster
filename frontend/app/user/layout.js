@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import AIChatWidget from '../../components/AIChatWidget';
+import ThemeToggle from '../../components/ThemeToggle';
 
 export default function UserLayout({ children }) {
     const router = useRouter();
@@ -65,6 +66,7 @@ export default function UserLayout({ children }) {
                 </div>
                 <div className="user-navbar-right">
                     <span className="user-greeting">Hi, {user?.name?.split(' ')[0]}</span>
+                    <ThemeToggle />
                     <button onClick={handleLogout} className="btn btn-secondary btn-sm">
                         Logout
                     </button>

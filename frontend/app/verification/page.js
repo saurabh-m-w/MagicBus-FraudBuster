@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { DataCard, BaseCard } from '../../components/cards';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -111,7 +112,7 @@ export default function VerificationPage() {
         }, [value]);
 
         return (
-            <div className="doc-card">
+            <BaseCard padding="small" style={{ background: 'var(--background)' }}>
                 <div className="doc-header">
                     <span className="doc-title">{title}</span>
                     {validation && (
@@ -124,7 +125,7 @@ export default function VerificationPage() {
                 {validation && !validation.valid && (
                     <div className="doc-error">{validation.message}</div>
                 )}
-            </div>
+            </BaseCard>
         );
     };
 
@@ -162,138 +163,126 @@ export default function VerificationPage() {
 
             <div className="verification-grid">
                 <div className="candidates-list">
-                    <div className="card">
-                        <div className="card-header">
-                            <h2 className="card-title">Candidates</h2>
-                        </div>
-                        <div className="card-body">
-                            {candidates.length === 0 ? (
-                                <div className="empty-state">No candidates in this queue</div>
-                            ) : (
-                                <div className="candidate-items">
-                                    {candidates.map(c => (
-                                        <div 
-                                            key={c.id}
-                                            className={`candidate-item ${selectedCandidate?.id === c.id ? 'selected' : ''}`}
-                                            onClick={() => fetchCandidateDetail(c.id)}
-                                        >
-                                            <div className="candidate-avatar">
-                                                {c.name?.charAt(0)}
-                                            </div>
-                                            <div className="candidate-info">
-                                                <div className="candidate-name">{c.name}</div>
-                                                <div className="candidate-meta">{c.phone}</div>
-                                            </div>
-                                            <div className="candidate-score">
-                                                {c.scout_score?.toFixed(0)}
-                                            </div>
+                    <DataCard title="Candidates" noPadding>
+                        {candidates.length === 0 ? (
+                            <div className="empty-state" style={{ padding: '2rem' }}>No candidates in this queue</div>
+                        ) : (
+                            <div className="candidate-items" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                                {candidates.map(c => (
+                                    <div 
+                                        key={c.id}
+                                        className={`candidate-item ${selectedCandidate?.id === c.id ? 'selected' : ''}`}
+                                        onClick={() => fetchCandidateDetail(c.id)}
+                                    >
+                                        <div className="candidate-avatar">
+                                            {c.name?.charAt(0)}
                                         </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                                        <div className="candidate-info">
+                                            <div className="candidate-name">{c.name}</div>
+                                            <div className="candidate-meta">{c.phone}</div>
+                                        </div>
+                                        <div className="candidate-score">
+                                            {c.scout_score?.toFixed(0)}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </DataCard>
                 </div>
 
                 <div className="candidate-detail">
                     {selectedCandidate ? (
-                        <div className="card">
-                            <div className="card-header">
-                                <h2 className="card-title">Review: {selectedCandidate.name}</h2>
+                        <DataCard title={`Review: ${selectedCandidate.name}`}>
+                            <div className="detail-section">
+                                <h3>Personal Information</h3>
+                                <div className="detail-grid">
+                                    <div className="detail-item">
+                                        <span className="label">Age</span>
+                                        <span className="value">{selectedCandidate.age}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label">Gender</span>
+                                        <span className="value">{selectedCandidate.gender}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label">Location</span>
+                                        <span className="value">{selectedCandidate.location}</span>
+                                    </div>
+                                    <div className="detail-item">
+                                        <span className="label">Education</span>
+                                        <span className="value">{selectedCandidate.education_level}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="card-body">
-                                <div className="detail-section">
-                                    <h3>Personal Information</h3>
-                                    <div className="detail-grid">
-                                        <div className="detail-item">
-                                            <span className="label">Age</span>
-                                            <span className="value">{selectedCandidate.age}</span>
-                                        </div>
-                                        <div className="detail-item">
-                                            <span className="label">Gender</span>
-                                            <span className="value">{selectedCandidate.gender}</span>
-                                        </div>
-                                        <div className="detail-item">
-                                            <span className="label">Location</span>
-                                            <span className="value">{selectedCandidate.location}</span>
-                                        </div>
-                                        <div className="detail-item">
-                                            <span className="label">Education</span>
-                                            <span className="value">{selectedCandidate.education_level}</span>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div className="detail-section">
-                                    <h3>Documents</h3>
-                                    <div className="docs-grid">
-                                        <DocumentCard 
-                                            title="Aadhar Card" 
-                                            value={selectedCandidate.aadhar_number}
-                                            type="aadhar"
-                                        />
-                                        <DocumentCard 
-                                            title="PAN Card" 
-                                            value={selectedCandidate.pan_number}
-                                            type="pan"
-                                        />
-                                        <DocumentCard 
-                                            title="BPL/Ration Card" 
-                                            value={selectedCandidate.bpl_card_number}
-                                            type="bpl"
-                                        />
-                                    </div>
+                            <div className="detail-section">
+                                <h3>Documents</h3>
+                                <div className="docs-grid">
+                                    <DocumentCard 
+                                        title="Aadhar Card" 
+                                        value={selectedCandidate.aadhar_number}
+                                        type="aadhar"
+                                    />
+                                    <DocumentCard 
+                                        title="PAN Card" 
+                                        value={selectedCandidate.pan_number}
+                                        type="pan"
+                                    />
+                                    <DocumentCard 
+                                        title="BPL/Ration Card" 
+                                        value={selectedCandidate.bpl_card_number}
+                                        type="bpl"
+                                    />
                                 </div>
+                            </div>
 
-                                <div className="detail-section">
-                                    <h3>SCOUT Analysis</h3>
-                                    <div className="scout-score-large">
-                                        <div className="score-circle">
-                                            {selectedCandidate.scout_score?.toFixed(0)}
-                                        </div>
-                                        <div className="score-label">Propensity Score</div>
+                            <div className="detail-section">
+                                <h3>SCOUT Analysis</h3>
+                                <div className="scout-score-large">
+                                    <div className="score-circle">
+                                        {selectedCandidate.scout_score?.toFixed(0)}
                                     </div>
+                                    <div className="score-label">Propensity Score</div>
                                 </div>
+                            </div>
 
-                                <div className="verification-actions">
-                                    {filter === 'documents_submitted' && (
-                                        <>
-                                            <button 
-                                                className="btn btn-success"
-                                                onClick={() => handleVerify(selectedCandidate.id, 'approve')}
-                                                disabled={processing}
-                                            >
-                                                Approve Documents
-                                            </button>
-                                            <button 
-                                                className="btn btn-danger"
-                                                onClick={() => handleVerify(selectedCandidate.id, 'reject')}
-                                                disabled={processing}
-                                            >
-                                                Request Resubmission
-                                            </button>
-                                        </>
-                                    )}
-                                    {filter === 'verified' && (
+                            <div className="verification-actions">
+                                {filter === 'documents_submitted' && (
+                                    <>
                                         <button 
-                                            className="btn btn-primary"
-                                            onClick={() => handleEnroll(selectedCandidate.id)}
+                                            className="btn btn-success"
+                                            onClick={() => handleVerify(selectedCandidate.id, 'approve')}
                                             disabled={processing}
                                         >
-                                            Enroll in Programme
+                                            Approve Documents
                                         </button>
-                                    )}
-                                </div>
+                                        <button 
+                                            className="btn btn-danger"
+                                            onClick={() => handleVerify(selectedCandidate.id, 'reject')}
+                                            disabled={processing}
+                                        >
+                                            Request Resubmission
+                                        </button>
+                                    </>
+                                )}
+                                {filter === 'verified' && (
+                                    <button 
+                                        className="btn btn-primary"
+                                        onClick={() => handleEnroll(selectedCandidate.id)}
+                                        disabled={processing}
+                                    >
+                                        Enroll in Programme
+                                    </button>
+                                )}
                             </div>
-                        </div>
+                        </DataCard>
                     ) : (
-                        <div className="card">
-                            <div className="card-body">
-                                <div className="empty-state">
-                                    Select a candidate to review their documents
-                                </div>
+                        <DataCard>
+                            <div className="empty-state">
+                                Select a candidate to review their documents
                             </div>
-                        </div>
+                        </DataCard>
                     )}
                 </div>
             </div>

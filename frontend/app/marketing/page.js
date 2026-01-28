@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef } from 'react';
+import { DataCard, BaseCard } from '../../components/cards';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -62,7 +63,6 @@ export default function MarketingPage() {
                 if (values[phoneIndex]) {
                     let phone = values[phoneIndex];
                     
-                    // Handle Excel scientific notation (e.g., 9.19923E+11)
                     if (phone.includes('E+') || phone.includes('e+')) {
                         const num = parseFloat(phone);
                         if (!isNaN(num)) {
@@ -157,101 +157,88 @@ export default function MarketingPage() {
             </div>
 
             {!results ? (
-                <div className="grid-2">
-                    <div className="card">
-                        <div className="card-header">
-                            <h2 className="card-title">1. Upload Recipients CSV</h2>
-                        </div>
-                        <div className="card-body">
-                            <div 
-                                className="upload-zone"
-                                onClick={() => fileInputRef.current?.click()}
-                            >
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept=".csv"
-                                    onChange={handleFileChange}
-                                    style={{ display: 'none' }}
-                                />
-                                {file ? (
-                                    <div className="upload-success">
-                                        <div className="upload-icon">CSV</div>
-                                        <div className="upload-filename">{file.name}</div>
-                                        <div className="upload-count">{parsedData.length} recipients found</div>
-                                    </div>
-                                ) : (
-                                    <div className="upload-placeholder">
-                                        <div className="upload-icon">+</div>
-                                        <div>Click to upload CSV file</div>
-                                        <div className="upload-hint">Must contain a column with phone numbers</div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="csv-format-hint">
-                                <strong>CSV Format:</strong> name, phone (or mobile/number/whatsapp)
-                                <br />
-                                <code>Rahul, 9876543210</code>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="card">
-                        <div className="card-header">
-                            <h2 className="card-title">2. Compose Message</h2>
-                        </div>
-                        <div className="card-body">
-                            <div className="form-group">
-                                <label>Message Template</label>
-                                <textarea
-                                    className="form-input"
-                                    value={message}
-                                    onChange={e => setMessage(e.target.value)}
-                                    placeholder="Hi {name}, join Magic Bus today for free skill training and job placement support!"
-                                    rows={6}
-                                />
-                                <div className="form-hint">Use {'{name}'} to personalize with recipient name</div>
-                            </div>
-
-                            <div className="message-preview-box">
-                                <div className="preview-label">Preview</div>
-                                <div className="preview-content">
-                                    {message.replace('{name}', parsedData[0]?.name || 'User') || 'Your message will appear here...'}
+                <div className="cards-grid-2">
+                    <DataCard title="1. Upload Recipients CSV">
+                        <div 
+                            className="upload-zone"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept=".csv"
+                                onChange={handleFileChange}
+                                style={{ display: 'none' }}
+                            />
+                            {file ? (
+                                <div className="upload-success">
+                                    <div className="upload-icon">CSV</div>
+                                    <div className="upload-filename">{file.name}</div>
+                                    <div className="upload-count">{parsedData.length} recipients found</div>
                                 </div>
+                            ) : (
+                                <div className="upload-placeholder">
+                                    <div className="upload-icon">+</div>
+                                    <div>Click to upload CSV file</div>
+                                    <div className="upload-hint">Must contain a column with phone numbers</div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="csv-format-hint">
+                            <strong>CSV Format:</strong> name, phone (or mobile/number/whatsapp)
+                            <br />
+                            <code>Rahul, 9876543210</code>
+                        </div>
+                    </DataCard>
+
+                    <DataCard title="2. Compose Message">
+                        <div className="form-group">
+                            <label>Message Template</label>
+                            <textarea
+                                className="form-input"
+                                value={message}
+                                onChange={e => setMessage(e.target.value)}
+                                placeholder="Hi {name}, join Magic Bus today for free skill training and job placement support!"
+                                rows={6}
+                            />
+                            <div className="form-hint">Use {'{name}'} to personalize with recipient name</div>
+                        </div>
+
+                        <div className="message-preview-box">
+                            <div className="preview-label">Preview</div>
+                            <div className="preview-content">
+                                {message.replace('{name}', parsedData[0]?.name || 'User') || 'Your message will appear here...'}
                             </div>
                         </div>
-                    </div>
+                    </DataCard>
                 </div>
             ) : (
-                <div className="card">
-                    <div className="card-header">
-                        <h2 className="card-title">Campaign Results</h2>
-                        <button className="btn btn-secondary" onClick={resetForm}>New Campaign</button>
-                    </div>
-                    <div className="card-body">
-                        <div className="results-summary">
-                            <div className="result-stat">
-                                <div className="result-value">{results.total}</div>
-                                <div className="result-label">Total</div>
-                            </div>
-                            <div className="result-stat success">
-                                <div className="result-value">{results.success}</div>
-                                <div className="result-label">Sent</div>
-                            </div>
-                            <div className="result-stat failed">
-                                <div className="result-value">{results.failed}</div>
-                                <div className="result-label">Failed</div>
-                            </div>
+                <DataCard 
+                    title="Campaign Results"
+                    action={<button className="btn btn-secondary" onClick={resetForm}>New Campaign</button>}
+                >
+                    <div className="results-summary">
+                        <div className="result-stat">
+                            <div className="result-value">{results.total}</div>
+                            <div className="result-label">Total</div>
+                        </div>
+                        <div className="result-stat success">
+                            <div className="result-value">{results.success}</div>
+                            <div className="result-label">Sent</div>
+                        </div>
+                        <div className="result-stat failed">
+                            <div className="result-value">{results.failed}</div>
+                            <div className="result-label">Failed</div>
                         </div>
                     </div>
-                </div>
+                </DataCard>
             )}
 
             {previewMode && parsedData.length > 0 && !results && (
-                <div className="card" style={{ marginTop: '1.5rem' }}>
-                    <div className="card-header">
-                        <h2 className="card-title">3. Review Recipients ({parsedData.length})</h2>
+                <DataCard 
+                    title={`3. Review Recipients (${parsedData.length})`}
+                    action={
                         <button 
                             className="btn btn-primary"
                             onClick={handleSendMessages}
@@ -259,37 +246,37 @@ export default function MarketingPage() {
                         >
                             {sending ? 'Sending...' : `Send to ${parsedData.length} Recipients`}
                         </button>
-                    </div>
-                    <div className="card-body">
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Name</th>
-                                    <th>Phone</th>
-                                    <th>WhatsApp Format</th>
+                    }
+                    style={{ marginTop: '1.5rem' }}
+                >
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>WhatsApp Format</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {parsedData.slice(0, 20).map((item, idx) => (
+                                <tr key={idx}>
+                                    <td>{idx + 1}</td>
+                                    <td>{item.name}</td>
+                                    <td>{item.phone}</td>
+                                    <td><code>whatsapp:{item.phone}</code></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {parsedData.slice(0, 20).map((item, idx) => (
-                                    <tr key={idx}>
-                                        <td>{idx + 1}</td>
-                                        <td>{item.name}</td>
-                                        <td>{item.phone}</td>
-                                        <td><code>whatsapp:{item.phone}</code></td>
-                                    </tr>
-                                ))}
-                                {parsedData.length > 20 && (
-                                    <tr>
-                                        <td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
-                                            ... and {parsedData.length - 20} more recipients
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                            ))}
+                            {parsedData.length > 20 && (
+                                <tr>
+                                    <td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+                                        ... and {parsedData.length - 20} more recipients
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </DataCard>
             )}
         </>
     );

@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ThemeToggle from '../../components/ThemeToggle';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -51,6 +52,9 @@ export default function LoginPage() {
 
     return (
         <div className="auth-container">
+            <div className="auth-theme-toggle">
+                <ThemeToggle />
+            </div>
             <div className="auth-card">
                 <div className="auth-header">
                     <h1 className="auth-title">PathFinder AI</h1>

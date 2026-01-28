@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import ThemeToggle from '../components/ThemeToggle';
 import './globals.css';
 
 export default function RootLayout({ children }) {
@@ -121,6 +122,7 @@ export default function RootLayout({ children }) {
             <div className="sidebar-footer">
               <div className="admin-info">
                 <span className="admin-name">{userName}</span>
+                <ThemeToggle />
                 <button onClick={handleLogout} className="logout-btn">Logout</button>
               </div>
               <div className="sidebar-badge">Magic Bus</div>

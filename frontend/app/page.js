@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { dashboardAPI } from '../lib/api';
+import { StatCard, DataCard, PillarCard } from '../components/cards';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -53,102 +53,82 @@ export default function Dashboard() {
         <p className="page-subtitle">PathFinder AI - Youth Mobilisation Platform for Magic Bus</p>
       </div>
 
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-value">{stats?.total_candidates || 0}</div>
-          <div className="stat-label">Total Candidates</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{stats?.enrolled_count || 0}</div>
-          <div className="stat-label">Enrolled</div>
-          <span className="stat-trend up">Active in programme</span>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{stats?.avg_onboarding_days || 0}</div>
-          <div className="stat-label">Avg. Onboarding Days</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">{stats?.high_risk_count || 0}</div>
-          <div className="stat-label">At-Risk Youth</div>
-          <span className="stat-trend down">Needs intervention</span>
-        </div>
+      <div className="cards-grid" style={{ marginBottom: '1.5rem' }}>
+        <StatCard
+          value={stats?.total_candidates || 0}
+          label="Total Candidates"
+        />
+        <StatCard
+          value={stats?.enrolled_count || 0}
+          label="Enrolled"
+          trend="Active in programme"
+          trendDirection="up"
+          accentColor="var(--success)"
+        />
+        <StatCard
+          value={stats?.avg_onboarding_days || 0}
+          label="Avg. Onboarding Days"
+        />
+        <StatCard
+          value={stats?.high_risk_count || 0}
+          label="At-Risk Youth"
+          trend="Needs intervention"
+          trendDirection="down"
+          accentColor="var(--danger)"
+        />
       </div>
 
-      <div className="grid-2">
-        <div className="card">
-          <div className="card-header">
-            <h2 className="card-title">4 Pillars Overview</h2>
+      <div className="cards-grid-2">
+        <DataCard title="4 Pillars Overview">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            {pillarSummary && Object.values(pillarSummary).map((pillar, i) => (
+              <PillarCard
+                key={i}
+                title={pillar.title}
+                metric={pillar.metric}
+                description={pillar.description}
+                color={pillarColors[pillar.title]}
+                href={`/${pillar.title.toLowerCase()}`}
+              />
+            ))}
           </div>
-          <div className="card-body">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              {pillarSummary && Object.values(pillarSummary).map((pillar, i) => (
-                <Link
-                  href={`/${pillar.title.toLowerCase()}`}
-                  key={i}
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+        </DataCard>
+
+        <DataCard title="Conversion Funnel">
+          <div className="funnel">
+            {funnel.map((stage, i) => (
+              <div className="funnel-stage" key={i}>
+                <div className="funnel-label">{stage.stage}</div>
+                <div
+                  className="funnel-bar"
+                  style={{ width: `${(stage.count / maxFunnelCount) * 100}%`, minWidth: '40px' }}
                 >
-                  <div className="pillar-card">
-                    <div 
-                      className="pillar-icon-badge"
-                      style={{ background: pillarColors[pillar.title] }}
-                    >
-                      {pillar.title.charAt(0)}
-                    </div>
-                    <div className="pillar-title">{pillar.title}</div>
-                    <div className="pillar-metric">{pillar.metric}</div>
-                    <div className="pillar-desc">{pillar.description}</div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-header">
-            <h2 className="card-title">Conversion Funnel</h2>
-          </div>
-          <div className="card-body">
-            <div className="funnel">
-              {funnel.map((stage, i) => (
-                <div className="funnel-stage" key={i}>
-                  <div className="funnel-label">{stage.stage}</div>
-                  <div
-                    className="funnel-bar"
-                    style={{ width: `${(stage.count / maxFunnelCount) * 100}%`, minWidth: '40px' }}
-                  >
-                    {stage.count}
-                  </div>
+                  {stage.count}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </DataCard>
       </div>
 
-      <div className="card" style={{ marginTop: '1.5rem' }}>
-        <div className="card-header">
-          <h2 className="card-title">Key Metrics</h2>
-        </div>
-        <div className="card-body">
-          <div className="stats-grid">
-            <div>
-              <div style={{ marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Dropout Rate</div>
-              <div className="progress-bar">
-                <div className="progress-bar-fill" style={{ width: `${stats?.dropout_rate || 0}%`, background: 'var(--danger)' }}></div>
-              </div>
-              <div style={{ marginTop: '0.25rem', fontSize: '0.875rem' }}>{stats?.dropout_rate || 0}%</div>
+      <DataCard title="Key Metrics" style={{ marginTop: '1.5rem' }}>
+        <div className="cards-grid-2">
+          <div>
+            <div style={{ marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Dropout Rate</div>
+            <div className="progress-bar">
+              <div className="progress-bar-fill" style={{ width: `${stats?.dropout_rate || 0}%`, background: 'var(--danger)' }}></div>
             </div>
-            <div>
-              <div style={{ marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Placement Rate</div>
-              <div className="progress-bar">
-                <div className="progress-bar-fill" style={{ width: `${stats?.placement_rate || 0}%`, background: 'var(--success)' }}></div>
-              </div>
-              <div style={{ marginTop: '0.25rem', fontSize: '0.875rem' }}>{stats?.placement_rate || 0}%</div>
+            <div style={{ marginTop: '0.25rem', fontSize: '0.875rem' }}>{stats?.dropout_rate || 0}%</div>
+          </div>
+          <div>
+            <div style={{ marginBottom: '0.5rem', color: 'var(--text-muted)' }}>Placement Rate</div>
+            <div className="progress-bar">
+              <div className="progress-bar-fill" style={{ width: `${stats?.placement_rate || 0}%`, background: 'var(--success)' }}></div>
             </div>
+            <div style={{ marginTop: '0.25rem', fontSize: '0.875rem' }}>{stats?.placement_rate || 0}%</div>
           </div>
         </div>
-      </div>
+      </DataCard>
     </>
   );
 }

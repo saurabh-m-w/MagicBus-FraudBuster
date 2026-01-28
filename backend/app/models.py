@@ -71,6 +71,7 @@ class Youth(Base):
     pincode = Column(String(10))
     
     aadhar_number = Column(String(12))
+    aadhar_verified = Column(Boolean, default=False)
     pan_number = Column(String(10))
     bpl_card_number = Column(String(50))
     

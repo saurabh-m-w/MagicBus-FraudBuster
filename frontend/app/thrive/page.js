@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { thriveAPI, whatsappAPI } from '../../lib/api';
+import { StatCard, DataCard, BaseCard } from '../../components/cards';
 
 export default function ThrivePage() {
     const [atRisk, setAtRisk] = useState([]);
@@ -79,18 +80,6 @@ export default function ThrivePage() {
         }
     };
 
-    const handleQuickNudge = async (youthId, youthName) => {
-        setSending(true);
-        try {
-            await whatsappAPI.sendNudge(youthId, 'motivational', null);
-            alert(`Quick nudge sent to ${youthName}`);
-        } catch (error) {
-            console.error('Failed to send nudge:', error);
-        } finally {
-            setSending(false);
-        }
-    };
-
     const getRiskColor = (level) => {
         const colors = {
             critical: 'var(--danger)',
@@ -112,193 +101,170 @@ export default function ThrivePage() {
                 <p className="page-subtitle">Predictive dropout prevention and AI-powered job matching</p>
             </div>
 
-            <div className="stats-grid">
-                <div className="stat-card">
-                    <div className="stat-value">{distribution?.total_enrolled || 0}</div>
-                    <div className="stat-label">Enrolled Youth</div>
-                </div>
-                <div className="stat-card" style={{ borderColor: 'var(--danger)' }}>
-                    <div className="stat-value" style={{ color: 'var(--danger)' }}>
-                        {(distribution?.distribution?.critical || 0) + (distribution?.distribution?.high || 0)}
-                    </div>
-                    <div className="stat-label">High Risk</div>
-                    <span className="stat-trend down">Need immediate attention</span>
-                </div>
-                <div className="stat-card" style={{ borderColor: 'var(--success)' }}>
-                    <div className="stat-value" style={{ color: 'var(--success)' }}>
-                        {placementMetrics?.total_placements || 0}
-                    </div>
-                    <div className="stat-label">Job Placements</div>
-                </div>
-                <div className="stat-card">
-                    <div className="stat-value">{placementMetrics?.success_rate || 0}%</div>
-                    <div className="stat-label">90-Day Retention</div>
-                </div>
+            <div className="cards-grid" style={{ marginBottom: '1.5rem' }}>
+                <StatCard
+                    value={distribution?.total_enrolled || 0}
+                    label="Enrolled Youth"
+                />
+                <StatCard
+                    value={(distribution?.distribution?.critical || 0) + (distribution?.distribution?.high || 0)}
+                    label="High Risk"
+                    trend="Need immediate attention"
+                    trendDirection="down"
+                    accentColor="var(--danger)"
+                />
+                <StatCard
+                    value={placementMetrics?.total_placements || 0}
+                    label="Job Placements"
+                    accentColor="var(--success)"
+                />
+                <StatCard
+                    value={`${placementMetrics?.success_rate || 0}%`}
+                    label="90-Day Retention"
+                />
             </div>
 
-            <div className="grid-2">
-                <div className="card">
-                    <div className="card-header">
-                        <h2 className="card-title">Risk Distribution</h2>
-                    </div>
-                    <div className="card-body">
-                        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-                            {Object.entries(distribution?.distribution || {}).map(([level, count]) => (
-                                <div key={level} style={{ textAlign: 'center', flex: 1 }}>
-                                    <div style={{
-                                        width: '60px',
-                                        height: '60px',
-                                        borderRadius: '50%',
-                                        background: getRiskColor(level),
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        margin: '0 auto 0.5rem',
-                                        fontSize: '1.25rem',
-                                        fontWeight: 700,
-                                        color: 'white'
-                                    }}>
-                                        {count}
-                                    </div>
-                                    <div style={{ fontSize: '0.75rem', textTransform: 'capitalize' }}>{level}</div>
+            <div className="cards-grid-2">
+                <DataCard title="Risk Distribution">
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                        {Object.entries(distribution?.distribution || {}).map(([level, count]) => (
+                            <div key={level} style={{ textAlign: 'center', flex: 1 }}>
+                                <div style={{
+                                    width: '60px',
+                                    height: '60px',
+                                    borderRadius: '50%',
+                                    background: getRiskColor(level),
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    margin: '0 auto 0.5rem',
+                                    fontSize: '1.25rem',
+                                    fontWeight: 700,
+                                    color: 'white'
+                                }}>
+                                    {count}
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="card">
-                    <div className="card-header">
-                        <h2 className="card-title">Available Jobs</h2>
-                    </div>
-                    <div className="card-body" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                        {jobs.slice(0, 5).map((job) => (
-                            <div key={job.id} style={{
-                                padding: '0.75rem',
-                                background: 'var(--surface-light)',
-                                borderRadius: '0.5rem',
-                                marginBottom: '0.5rem'
-                            }}>
-                                <div style={{ fontWeight: 600 }}>{job.title}</div>
-                                <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
-                                    {job.company} | {job.salary_range}
-                                </div>
+                                <div style={{ fontSize: '0.75rem', textTransform: 'capitalize' }}>{level}</div>
                             </div>
                         ))}
                     </div>
-                </div>
+                </DataCard>
+
+                <DataCard title="Available Jobs" maxHeight="200px">
+                    {jobs.slice(0, 5).map((job) => (
+                        <BaseCard key={job.id} padding="small" style={{ marginBottom: '0.5rem', background: 'var(--surface-light)' }}>
+                            <div style={{ fontWeight: 600 }}>{job.title}</div>
+                            <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                                {job.company} | {job.salary_range}
+                            </div>
+                        </BaseCard>
+                    ))}
+                </DataCard>
             </div>
 
-            <div className="card" style={{ marginTop: '1.5rem' }}>
-                <div className="card-header">
-                    <h2 className="card-title">At-Risk Youth - Early Warning System</h2>
-                </div>
-                <div className="card-body">
+            <DataCard title="At-Risk Youth - Early Warning System" style={{ marginTop: '1.5rem' }}>
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Risk Level</th>
+                            <th>Risk Factors</th>
+                            <th>Recommendation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {atRisk.slice(0, 10).map((youth) => (
+                            <tr key={youth.youth_id}>
+                                <td>{youth.youth_name}</td>
+                                <td>
+                                    <div className="risk-indicator">
+                                        <span className={`risk-dot ${youth.risk_level}`}></span>
+                                        <span style={{ textTransform: 'capitalize' }}>{youth.risk_level}</span>
+                                        <span style={{ color: 'var(--text-muted)' }}>({youth.risk_score}%)</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                        {youth.risk_factors.join(', ')}
+                                    </div>
+                                </td>
+                                <td style={{ fontSize: '0.875rem' }}>{youth.recommended_intervention}</td>
+                                <td>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button
+                                            className="btn btn-primary"
+                                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                                            onClick={() => openNudgeModal(youth)}
+                                            disabled={sending}
+                                        >
+                                            Nudge
+                                        </button>
+                                        <button
+                                            className="btn btn-secondary"
+                                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                                            onClick={() => handleViewMatches(youth.youth_id, youth.youth_name)}
+                                        >
+                                            Jobs
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </DataCard>
+
+            {selectedYouth && (
+                <DataCard 
+                    title={`Job Matches for ${selectedYouth}`}
+                    action={<button className="btn btn-secondary" onClick={() => setSelectedYouth(null)}>Close</button>}
+                    style={{ marginTop: '1.5rem' }}
+                >
                     <table className="table">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Risk Level</th>
-                                <th>Risk Factors</th>
-                                <th>Recommendation</th>
-                                <th>Actions</th>
+                                <th>Job Title</th>
+                                <th>Company</th>
+                                <th>Match Score</th>
+                                <th>Skills Matched</th>
+                                <th>Skills Gap</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {atRisk.slice(0, 10).map((youth) => (
-                                <tr key={youth.youth_id}>
-                                    <td>{youth.youth_name}</td>
+                            {jobMatches.map((match) => (
+                                <tr key={match.job_id}>
+                                    <td>{match.job_title}</td>
+                                    <td>{match.company}</td>
                                     <td>
-                                        <div className="risk-indicator">
-                                            <span className={`risk-dot ${youth.risk_level}`}></span>
-                                            <span style={{ textTransform: 'capitalize' }}>{youth.risk_level}</span>
-                                            <span style={{ color: 'var(--text-muted)' }}>({youth.risk_score}%)</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <div className="progress-bar" style={{ width: '60px' }}>
+                                                <div
+                                                    className="progress-bar-fill"
+                                                    style={{
+                                                        width: `${match.match_score}%`,
+                                                        background: match.match_score >= 70 ? 'var(--success)' : 'var(--warning)'
+                                                    }}
+                                                ></div>
+                                            </div>
+                                            <span>{match.match_score}%</span>
                                         </div>
                                     </td>
                                     <td>
-                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                            {youth.risk_factors.join(', ')}
-                                        </div>
+                                        {match.skills_matched.map(s => (
+                                            <span key={s} className="badge badge-success" style={{ marginRight: '0.25rem' }}>{s}</span>
+                                        ))}
                                     </td>
-                                    <td style={{ fontSize: '0.875rem' }}>{youth.recommended_intervention}</td>
                                     <td>
-                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                            <button
-                                                className="btn btn-primary"
-                                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
-                                                onClick={() => openNudgeModal(youth)}
-                                                disabled={sending}
-                                            >
-                                                Nudge
-                                            </button>
-                                            <button
-                                                className="btn btn-secondary"
-                                                style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
-                                                onClick={() => handleViewMatches(youth.youth_id, youth.youth_name)}
-                                            >
-                                                Jobs
-                                            </button>
-                                        </div>
+                                        {match.skills_gap.map(s => (
+                                            <span key={s} className="badge badge-warning" style={{ marginRight: '0.25rem' }}>{s}</span>
+                                        ))}
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            {selectedYouth && (
-                <div className="card" style={{ marginTop: '1.5rem' }}>
-                    <div className="card-header">
-                        <h2 className="card-title">Job Matches for {selectedYouth}</h2>
-                        <button className="btn btn-secondary" onClick={() => setSelectedYouth(null)}>Close</button>
-                    </div>
-                    <div className="card-body">
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Job Title</th>
-                                    <th>Company</th>
-                                    <th>Match Score</th>
-                                    <th>Skills Matched</th>
-                                    <th>Skills Gap</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {jobMatches.map((match) => (
-                                    <tr key={match.job_id}>
-                                        <td>{match.job_title}</td>
-                                        <td>{match.company}</td>
-                                        <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                <div className="progress-bar" style={{ width: '60px' }}>
-                                                    <div
-                                                        className="progress-bar-fill"
-                                                        style={{
-                                                            width: `${match.match_score}%`,
-                                                            background: match.match_score >= 70 ? 'var(--success)' : 'var(--warning)'
-                                                        }}
-                                                    ></div>
-                                                </div>
-                                                <span>{match.match_score}%</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            {match.skills_matched.map(s => (
-                                                <span key={s} className="badge badge-success" style={{ marginRight: '0.25rem' }}>{s}</span>
-                                            ))}
-                                        </td>
-                                        <td>
-                                            {match.skills_gap.map(s => (
-                                                <span key={s} className="badge badge-warning" style={{ marginRight: '0.25rem' }}>{s}</span>
-                                            ))}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                </DataCard>
             )}
 
             {showNudgeModal && nudgeTarget && (

@@ -8,7 +8,7 @@ load_dotenv(dotenv_path=env_path)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import init_db
-from .routers import scout, streamline, amplify, thrive, dashboard, whatsapp, auth, user_portal, ai_agent, upload
+from .routers import scout, streamline, amplify, thrive, dashboard, whatsapp, auth, user_portal, ai_agent, upload, kyc
 
 app = FastAPI(
     title="PathFinder AI",
@@ -27,6 +27,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(user_portal.router)
 app.include_router(upload.router)
+app.include_router(kyc.router)
 app.include_router(ai_agent.router)
 app.include_router(dashboard.router)
 app.include_router(scout.router)

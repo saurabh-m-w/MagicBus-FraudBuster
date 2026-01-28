@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { streamlineAPI, whatsappAPI } from '../../lib/api';
+import { StatCard, DataCard, BaseCard } from '../../components/cards';
 
 export default function StreamlinePage() {
     const [pipeline, setPipeline] = useState({});
@@ -94,125 +95,115 @@ export default function StreamlinePage() {
                 <p className="page-subtitle">Track and manage the youth onboarding pipeline</p>
             </div>
 
-            <div className="stats-grid">
-                <div className="stat-card">
-                    <div className="stat-value">{metrics?.total_candidates || 0}</div>
-                    <div className="stat-label">Total Candidates</div>
-                </div>
-                <div className="stat-card" style={{ borderColor: 'var(--success)' }}>
-                    <div className="stat-value" style={{ color: 'var(--success)' }}>
-                        {metrics?.enrolled || 0}
-                    </div>
-                    <div className="stat-label">Enrolled</div>
-                    <span className="stat-trend up">{metrics?.enrollment_rate?.toFixed(1)}% rate</span>
-                </div>
-                <div className="stat-card">
-                    <div className="stat-value">{metrics?.in_progress || 0}</div>
-                    <div className="stat-label">In Progress</div>
-                </div>
-                <div className="stat-card">
-                    <div className="stat-value">{metrics?.avg_onboarding_days || 0}</div>
-                    <div className="stat-label">Avg. Days to Enroll</div>
-                </div>
+            <div className="cards-grid" style={{ marginBottom: '1.5rem' }}>
+                <StatCard
+                    value={metrics?.total_candidates || 0}
+                    label="Total Candidates"
+                />
+                <StatCard
+                    value={metrics?.enrolled || 0}
+                    label="Enrolled"
+                    trend={`${metrics?.enrollment_rate?.toFixed(1)}% rate`}
+                    trendDirection="up"
+                    accentColor="var(--success)"
+                />
+                <StatCard
+                    value={metrics?.in_progress || 0}
+                    label="In Progress"
+                />
+                <StatCard
+                    value={metrics?.avg_onboarding_days || 0}
+                    label="Avg. Days to Enroll"
+                />
             </div>
 
-            <div className="card" style={{ marginBottom: '1.5rem' }}>
-                <div className="card-header">
-                    <h2 className="card-title">Onboarding Pipeline</h2>
+            <DataCard title="Onboarding Pipeline" style={{ marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    {Object.entries(statusLabels).filter(([k]) => k !== 'dropped').map(([status, label]) => (
+                        <button
+                            key={status}
+                            onClick={() => setSelectedStatus(status)}
+                            className={`btn ${selectedStatus === status ? 'btn-primary' : 'btn-secondary'}`}
+                            style={{ position: 'relative' }}
+                        >
+                            {label}
+                            <span style={{
+                                position: 'absolute',
+                                top: '-8px',
+                                right: '-8px',
+                                background: 'var(--primary)',
+                                color: 'white',
+                                borderRadius: '50%',
+                                width: '24px',
+                                height: '24px',
+                                fontSize: '0.75rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                {pipeline[status] || 0}
+                            </span>
+                        </button>
+                    ))}
                 </div>
-                <div className="card-body">
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                        {Object.entries(statusLabels).filter(([k]) => k !== 'dropped').map(([status, label]) => (
-                            <button
-                                key={status}
-                                onClick={() => setSelectedStatus(status)}
-                                className={`btn ${selectedStatus === status ? 'btn-primary' : 'btn-secondary'}`}
-                                style={{ position: 'relative' }}
-                            >
-                                {label}
-                                <span style={{
-                                    position: 'absolute',
-                                    top: '-8px',
-                                    right: '-8px',
-                                    background: 'var(--primary)',
-                                    color: 'white',
-                                    borderRadius: '50%',
-                                    width: '24px',
-                                    height: '24px',
-                                    fontSize: '0.75rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    {pipeline[status] || 0}
-                                </span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            </DataCard>
 
-            <div className="card">
-                <div className="card-header">
-                    <h2 className="card-title">Candidates - {statusLabels[selectedStatus]}</h2>
-                </div>
-                <div className="card-body">
-                    {candidates.length === 0 ? (
-                        <div className="empty-state">No candidates in this stage</div>
-                    ) : (
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Phone</th>
-                                    <th>Location</th>
-                                    <th>Channel</th>
-                                    <th>Actions</th>
+            <DataCard title={`Candidates - ${statusLabels[selectedStatus]}`}>
+                {candidates.length === 0 ? (
+                    <div className="empty-state">No candidates in this stage</div>
+                ) : (
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Location</th>
+                                <th>Channel</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {candidates.slice(0, 20).map((c) => (
+                                <tr key={c.id}>
+                                    <td>{c.name}</td>
+                                    <td>{c.phone}</td>
+                                    <td>{c.location}</td>
+                                    <td><span className="badge badge-primary">{c.source_channel}</span></td>
+                                    <td>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            {statusMessageMap[selectedStatus] && (
+                                                <button
+                                                    className="btn btn-secondary"
+                                                    style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                                                    onClick={() => handleSendWhatsApp(c.id, statusMessageMap[selectedStatus])}
+                                                    disabled={sending}
+                                                >
+                                                    Send WA
+                                                </button>
+                                            )}
+                                            {selectedStatus !== 'enrolled' && selectedStatus !== 'dropped' && (
+                                                <button
+                                                    className="btn btn-primary"
+                                                    style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+                                                    onClick={() => {
+                                                        const statuses = Object.keys(statusLabels);
+                                                        const currentIdx = statuses.indexOf(selectedStatus);
+                                                        if (currentIdx < statuses.length - 2) {
+                                                            handleStatusUpdate(c.id, statuses[currentIdx + 1]);
+                                                        }
+                                                    }}
+                                                >
+                                                    Advance
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {candidates.slice(0, 20).map((c) => (
-                                    <tr key={c.id}>
-                                        <td>{c.name}</td>
-                                        <td>{c.phone}</td>
-                                        <td>{c.location}</td>
-                                        <td><span className="badge badge-primary">{c.source_channel}</span></td>
-                                        <td>
-                                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                                {statusMessageMap[selectedStatus] && (
-                                                    <button
-                                                        className="btn btn-secondary"
-                                                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
-                                                        onClick={() => handleSendWhatsApp(c.id, statusMessageMap[selectedStatus])}
-                                                        disabled={sending}
-                                                    >
-                                                        Send WA
-                                                    </button>
-                                                )}
-                                                {selectedStatus !== 'enrolled' && selectedStatus !== 'dropped' && (
-                                                    <button
-                                                        className="btn btn-primary"
-                                                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
-                                                        onClick={() => {
-                                                            const statuses = Object.keys(statusLabels);
-                                                            const currentIdx = statuses.indexOf(selectedStatus);
-                                                            if (currentIdx < statuses.length - 2) {
-                                                                handleStatusUpdate(c.id, statuses[currentIdx + 1]);
-                                                            }
-                                                        }}
-                                                    >
-                                                        Advance
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
-            </div>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </DataCard>
         </>
     );
 }

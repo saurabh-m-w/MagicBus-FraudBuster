@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { amplifyAPI, whatsappAPI } from '../../lib/api';
+import { StatCard, DataCard } from '../../components/cards';
 
 export default function AmplifyPage() {
     const [channelPerformance, setChannelPerformance] = useState([]);
@@ -108,92 +109,81 @@ export default function AmplifyPage() {
                 </div>
             </div>
 
-            <div className="stats-grid">
-                <div className="stat-card">
-                    <div className="stat-value">{attribution?.total_conversions || 0}</div>
-                    <div className="stat-label">Total Conversions</div>
-                </div>
-                <div className="stat-card">
-                    <div className="stat-value">{channelPerformance.length}</div>
-                    <div className="stat-label">Active Channels</div>
-                </div>
-                <div className="stat-card">
-                    <div className="stat-value" style={{ fontSize: '1.25rem' }}>
-                        {channelPerformance[0]?.channel?.replace('_', ' ') || 'N/A'}
-                    </div>
-                    <div className="stat-label">Top Performing</div>
-                    <span className="stat-trend up">Highest ROI</span>
-                </div>
-                <div className="stat-card">
-                    <div className="stat-value">₹{budget.toLocaleString()}</div>
-                    <div className="stat-label">Budget Allocation</div>
-                </div>
+            <div className="cards-grid" style={{ marginBottom: '1.5rem' }}>
+                <StatCard
+                    value={attribution?.total_conversions || 0}
+                    label="Total Conversions"
+                />
+                <StatCard
+                    value={channelPerformance.length}
+                    label="Active Channels"
+                />
+                <StatCard
+                    value={channelPerformance[0]?.channel?.replace('_', ' ') || 'N/A'}
+                    label="Top Performing"
+                    trend="Highest ROI"
+                    trendDirection="up"
+                />
+                <StatCard
+                    value={`₹${budget.toLocaleString()}`}
+                    label="Budget Allocation"
+                />
             </div>
 
-            <div className="grid-2">
-                <div className="card">
-                    <div className="card-header">
-                        <h2 className="card-title">Channel Performance</h2>
-                    </div>
-                    <div className="card-body">
-                        {channelPerformance.map((channel) => (
-                            <div className="channel-bar" key={channel.channel}>
-                                <div className="channel-name" style={{ textTransform: 'capitalize' }}>
-                                    {channel.channel.replace('_', ' ')}
-                                </div>
-                                <div className="channel-progress">
-                                    <div
-                                        className="channel-fill"
-                                        style={{ width: `${(channel.reach / maxReach) * 100}%` }}
-                                    >
-                                        {channel.conversions}
-                                    </div>
-                                </div>
-                                <div className="channel-roi">
-                                    {getROIBar(channel.roi_score)}
+            <div className="cards-grid-2">
+                <DataCard title="Channel Performance">
+                    {channelPerformance.map((channel) => (
+                        <div className="channel-bar" key={channel.channel}>
+                            <div className="channel-name" style={{ textTransform: 'capitalize' }}>
+                                {channel.channel.replace('_', ' ')}
+                            </div>
+                            <div className="channel-progress">
+                                <div
+                                    className="channel-fill"
+                                    style={{ width: `${(channel.reach / maxReach) * 100}%` }}
+                                >
+                                    {channel.conversions}
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </div>
+                            <div className="channel-roi">
+                                {getROIBar(channel.roi_score)}
+                            </div>
+                        </div>
+                    ))}
+                </DataCard>
 
-                <div className="card">
-                    <div className="card-header">
-                        <h2 className="card-title">Conversion Attribution</h2>
-                    </div>
-                    <div className="card-body">
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Channel</th>
-                                    <th>Conversions</th>
-                                    <th>Share</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {attribution?.attribution?.map((a) => (
-                                    <tr key={a.channel}>
-                                        <td style={{ textTransform: 'capitalize' }}>{a.channel.replace('_', ' ')}</td>
-                                        <td>{a.conversions}</td>
-                                        <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                                <div className="progress-bar" style={{ width: '80px' }}>
-                                                    <div className="progress-bar-fill" style={{ width: `${a.percentage}%` }}></div>
-                                                </div>
-                                                <span>{a.percentage}%</span>
+                <DataCard title="Conversion Attribution">
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>Channel</th>
+                                <th>Conversions</th>
+                                <th>Share</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {attribution?.attribution?.map((a) => (
+                                <tr key={a.channel}>
+                                    <td style={{ textTransform: 'capitalize' }}>{a.channel.replace('_', ' ')}</td>
+                                    <td>{a.conversions}</td>
+                                    <td>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <div className="progress-bar" style={{ width: '80px' }}>
+                                                <div className="progress-bar-fill" style={{ width: `${a.percentage}%` }}></div>
                                             </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                            <span>{a.percentage}%</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </DataCard>
             </div>
 
-            <div className="card" style={{ marginTop: '1.5rem' }}>
-                <div className="card-header">
-                    <h2 className="card-title">AI Budget Recommendation</h2>
+            <DataCard 
+                title="AI Budget Recommendation"
+                action={
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Budget:</span>
                         <input
@@ -204,32 +194,32 @@ export default function AmplifyPage() {
                             style={{ width: '140px', padding: '0.5rem' }}
                         />
                     </div>
-                </div>
-                <div className="card-body">
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Channel</th>
-                                <th>ROI Score</th>
-                                <th>Recommended Budget</th>
-                                <th>Expected Conversions</th>
+                }
+                style={{ marginTop: '1.5rem' }}
+            >
+                <table className="table">
+                    <thead>
+                        <tr>
+                            <th>Channel</th>
+                            <th>ROI Score</th>
+                            <th>Recommended Budget</th>
+                            <th>Expected Conversions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {budgetRec?.recommendations?.map((rec) => (
+                            <tr key={rec.channel}>
+                                <td style={{ textTransform: 'capitalize' }}>{rec.channel.replace('_', ' ')}</td>
+                                <td>{getROIBar(rec.current_roi_score)}</td>
+                                <td style={{ fontWeight: 600, color: 'var(--success)' }}>
+                                    ₹{rec.recommended_budget.toLocaleString()}
+                                </td>
+                                <td>{rec.expected_conversions}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {budgetRec?.recommendations?.map((rec) => (
-                                <tr key={rec.channel}>
-                                    <td style={{ textTransform: 'capitalize' }}>{rec.channel.replace('_', ' ')}</td>
-                                    <td>{getROIBar(rec.current_roi_score)}</td>
-                                    <td style={{ fontWeight: 600, color: 'var(--success)' }}>
-                                        ₹{rec.recommended_budget.toLocaleString()}
-                                    </td>
-                                    <td>{rec.expected_conversions}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        ))}
+                    </tbody>
+                </table>
+            </DataCard>
 
             {showCampaignModal && (
                 <div className="modal-overlay" onClick={() => setShowCampaignModal(false)}>

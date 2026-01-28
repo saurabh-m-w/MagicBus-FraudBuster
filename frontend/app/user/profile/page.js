@@ -11,6 +11,14 @@ export default function ProfilePage() {
     const [activeTab, setActiveTab] = useState('personal');
     const [message, setMessage] = useState(null);
     const [uploadStatus, setUploadStatus] = useState({});
+    const [aadharOTP, setAadharOTP] = useState({
+        step: 'input',
+        referenceId: null,
+        otp: '',
+        verified: false,
+        loading: false,
+        error: null
+    });
 
     const [formData, setFormData] = useState({
         first_name: '',
@@ -140,6 +148,121 @@ export default function ProfilePage() {
             setMessage({ type: 'error', text: 'Failed to save profile' });
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleAadharSendOTP = async () => {
+        if (!formData.aadhar_number || formData.aadhar_number.length !== 12) {
+            setAadharOTP(prev => ({ ...prev, error: 'Please enter a valid 12-digit Aadhar number' }));
+            return;
+        }
+        
+        setAadharOTP(prev => ({ ...prev, loading: true, error: null }));
+        
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE}/kyc/aadhaar/send-otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ aadhaar_number: formData.aadhar_number })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                setAadharOTP(prev => ({
+                    ...prev,
+                    step: 'verify',
+                    referenceId: data.reference_id,
+                    loading: false,
+                    error: null
+                }));
+            } else {
+                setAadharOTP(prev => ({
+                    ...prev,
+                    loading: false,
+                    error: data.detail || 'Failed to send OTP'
+                }));
+            }
+        } catch (error) {
+            setAadharOTP(prev => ({
+                ...prev,
+                loading: false,
+                error: 'Failed to connect to verification service'
+            }));
+        }
+    };
+
+    const handleAadharVerifyOTP = async () => {
+        if (!aadharOTP.otp || aadharOTP.otp.length !== 6) {
+            setAadharOTP(prev => ({ ...prev, error: 'Please enter a valid 6-digit OTP' }));
+            return;
+        }
+        
+        setAadharOTP(prev => ({ ...prev, loading: true, error: null }));
+        
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE}/kyc/aadhaar/verify-otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    reference_id: aadharOTP.referenceId,
+                    otp: aadharOTP.otp
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.verified) {
+                setAadharOTP(prev => ({
+                    ...prev,
+                    step: 'verified',
+                    verified: true,
+                    loading: false,
+                    error: null
+                }));
+                
+                if (data.data) {
+                    if (data.data.name && !formData.first_name) {
+                        const nameParts = data.data.name.split(' ');
+                        setFormData(prev => ({
+                            ...prev,
+                            first_name: nameParts[0],
+                            last_name: nameParts.slice(1).join(' ')
+                        }));
+                    }
+                    if (data.data.state && !formData.state) {
+                        setFormData(prev => ({ ...prev, state: data.data.state }));
+                    }
+                    if (data.data.district && !formData.city) {
+                        setFormData(prev => ({ ...prev, city: data.data.district }));
+                    }
+                    if (data.data.pincode && !formData.pincode) {
+                        setFormData(prev => ({ ...prev, pincode: data.data.pincode.toString() }));
+                    }
+                }
+                
+                setMessage({ type: 'success', text: 'Aadhar verified successfully! Details auto-filled.' });
+            } else {
+                setAadharOTP(prev => ({
+                    ...prev,
+                    loading: false,
+                    error: data.message || 'Invalid OTP'
+                }));
+            }
+        } catch (error) {
+            setAadharOTP(prev => ({
+                ...prev,
+                loading: false,
+                error: 'Failed to verify OTP'
+            }));
         }
     };
 
@@ -491,28 +614,86 @@ export default function ProfilePage() {
                                     <span className="doc-icon">A</span>
                                     <div>
                                         <h4>Aadhar Card *</h4>
-                                        <p>Front and back</p>
+                                        <p>{aadharOTP.verified ? 'Verified via OTP' : 'Verify with OTP'}</p>
                                     </div>
+                                    {aadharOTP.verified && <span className="upload-check" style={{background: 'var(--success)', color: 'white'}}>Verified</span>}
                                     {uploadStatus.aadhar?.uploaded && <span className="upload-check">Uploaded</span>}
                                 </div>
-                                <div className="form-group" style={{marginBottom: '0.5rem'}}>
-                                    <input 
-                                        type="text" 
-                                        name="aadhar_number" 
-                                        value={formData.aadhar_number} 
-                                        onChange={handleChange}
+                                
+                                {aadharOTP.step === 'input' && (
+                                    <>
+                                        <div className="form-group" style={{marginBottom: '0.5rem'}}>
+                                            <input 
+                                                type="text" 
+                                                name="aadhar_number" 
+                                                value={formData.aadhar_number} 
+                                                onChange={handleChange}
+                                                disabled={isSubmitted || aadharOTP.verified}
+                                                placeholder="12-digit Aadhar number"
+                                                maxLength="12"
+                                            />
+                                        </div>
+                                        {aadharOTP.error && (
+                                            <div style={{color: 'var(--danger)', fontSize: '0.75rem', marginBottom: '0.5rem'}}>
+                                                {aadharOTP.error}
+                                            </div>
+                                        )}
+                                        <button 
+                                            className="btn btn-primary btn-sm"
+                                            onClick={handleAadharSendOTP}
+                                            disabled={isSubmitted || aadharOTP.loading || aadharOTP.verified || formData.aadhar_number.length !== 12}
+                                            style={{marginBottom: '0.5rem', width: '100%'}}
+                                        >
+                                            {aadharOTP.loading ? 'Sending OTP...' : 'Send OTP for Verification'}
+                                        </button>
+                                    </>
+                                )}
+                                
+                                {aadharOTP.step === 'verify' && (
+                                    <>
+                                        <div className="form-group" style={{marginBottom: '0.5rem'}}>
+                                            <input 
+                                                type="text" 
+                                                value={aadharOTP.otp}
+                                                onChange={(e) => setAadharOTP(prev => ({ ...prev, otp: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                                                placeholder="Enter 6-digit OTP"
+                                                maxLength="6"
+                                            />
+                                        </div>
+                                        {aadharOTP.error && (
+                                            <div style={{color: 'var(--danger)', fontSize: '0.75rem', marginBottom: '0.5rem'}}>
+                                                {aadharOTP.error}
+                                            </div>
+                                        )}
+                                        <div style={{display: 'flex', gap: '0.5rem'}}>
+                                            <button 
+                                                className="btn btn-primary btn-sm"
+                                                onClick={handleAadharVerifyOTP}
+                                                disabled={aadharOTP.loading || aadharOTP.otp.length !== 6}
+                                                style={{flex: 1}}
+                                            >
+                                                {aadharOTP.loading ? 'Verifying...' : 'Verify OTP'}
+                                            </button>
+                                            <button 
+                                                className="btn btn-secondary btn-sm"
+                                                onClick={() => setAadharOTP({ step: 'input', referenceId: null, otp: '', verified: false, loading: false, error: null })}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                                
+                                {aadharOTP.verified && (
+                                    <button 
+                                        className="btn btn-secondary btn-sm"
+                                        onClick={() => handleFileUpload('aadhar')}
                                         disabled={isSubmitted}
-                                        placeholder="12-digit Aadhar number"
-                                        maxLength="12"
-                                    />
-                                </div>
-                                <button 
-                                    className="btn btn-secondary btn-sm"
-                                    onClick={() => handleFileUpload('aadhar')}
-                                    disabled={isSubmitted}
-                                >
-                                    {uploadStatus.aadhar?.uploaded ? 'Re-upload' : 'Upload Aadhar'}
-                                </button>
+                                        style={{width: '100%'}}
+                                    >
+                                        {uploadStatus.aadhar?.uploaded ? 'Re-upload Document' : 'Upload Aadhar Document'}
+                                    </button>
+                                )}
                             </div>
 
                             {/* PAN */}

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { BaseCard, DataCard } from '../../../components/cards';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -62,64 +63,67 @@ export default function UserTrackerPage() {
             {notifications.length > 0 && (
                 <div className="notifications-section">
                     {notifications.map((notif, idx) => (
-                        <div key={idx} className={`notification-card ${notif.type}`}>
-                            <div className="notif-icon">
-                                {notif.type === 'action_required' && '!'}
-                                {notif.type === 'info' && 'i'}
-                                {notif.type === 'success' && '✓'}
+                        <BaseCard key={idx} padding="small" className={`notification-card-v2 ${notif.type}`}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div className="notif-icon">
+                                    {notif.type === 'action_required' && '!'}
+                                    {notif.type === 'info' && 'i'}
+                                    {notif.type === 'success' && '✓'}
+                                </div>
+                                <div className="notif-content" style={{ flex: 1 }}>
+                                    <h4>{notif.title}</h4>
+                                    <p>{notif.message}</p>
+                                </div>
+                                {notif.type === 'action_required' && (
+                                    <Link href="/user/profile" className="btn btn-sm btn-primary">
+                                        Take Action
+                                    </Link>
+                                )}
                             </div>
-                            <div className="notif-content">
-                                <h4>{notif.title}</h4>
-                                <p>{notif.message}</p>
-                            </div>
-                            {notif.type === 'action_required' && (
-                                <Link href="/user/profile" className="btn btn-sm btn-primary">
-                                    Take Action
-                                </Link>
-                            )}
-                        </div>
+                        </BaseCard>
                     ))}
                 </div>
             )}
 
             <div className="progress-overview">
-                <div className="progress-card">
-                    <div className="progress-circle">
-                        <svg viewBox="0 0 100 100">
-                            <circle
-                                cx="50"
-                                cy="50"
-                                r="45"
-                                fill="none"
-                                stroke="var(--surface-light)"
-                                strokeWidth="8"
-                            />
-                            <circle
-                                cx="50"
-                                cy="50"
-                                r="45"
-                                fill="none"
-                                stroke="var(--primary)"
-                                strokeWidth="8"
-                                strokeDasharray={`${tracker?.progress_percentage * 2.83} 283`}
-                                strokeLinecap="round"
-                                transform="rotate(-90 50 50)"
-                            />
-                        </svg>
-                        <div className="progress-text">
-                            <span className="progress-value">{tracker?.progress_percentage}%</span>
-                            <span className="progress-label">Complete</span>
+                <BaseCard className="progress-card-v2">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                        <div className="progress-circle">
+                            <svg viewBox="0 0 100 100">
+                                <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="45"
+                                    fill="none"
+                                    stroke="var(--surface-light)"
+                                    strokeWidth="8"
+                                />
+                                <circle
+                                    cx="50"
+                                    cy="50"
+                                    r="45"
+                                    fill="none"
+                                    stroke="var(--primary)"
+                                    strokeWidth="8"
+                                    strokeDasharray={`${tracker?.progress_percentage * 2.83} 283`}
+                                    strokeLinecap="round"
+                                    transform="rotate(-90 50 50)"
+                                />
+                            </svg>
+                            <div className="progress-text">
+                                <span className="progress-value">{tracker?.progress_percentage}%</span>
+                                <span className="progress-label">Complete</span>
+                            </div>
+                        </div>
+                        <div className="progress-info">
+                            <h3>Stage {tracker?.current_stage} of {tracker?.total_stages}</h3>
+                            <p className="current-status">{tracker?.stages?.find(s => s.status === 'current')?.label || 'Processing'}</p>
                         </div>
                     </div>
-                    <div className="progress-info">
-                        <h3>Stage {tracker?.current_stage} of {tracker?.total_stages}</h3>
-                        <p className="current-status">{tracker?.stages?.find(s => s.status === 'current')?.label || 'Processing'}</p>
-                    </div>
-                </div>
+                </BaseCard>
             </div>
 
-            <div className="stages-timeline">
-                <h2>Application Journey</h2>
+            <DataCard title="Application Journey" style={{ marginTop: '1.5rem' }}>
                 <div className="timeline">
                     {tracker?.stages?.map((stage, idx) => (
                         <div key={stage.id} className={`timeline-item ${stage.status}`}>
@@ -139,12 +143,12 @@ export default function UserTrackerPage() {
                         </div>
                     ))}
                 </div>
-            </div>
+            </DataCard>
 
             <div className="tracker-footer">
-                <div className="help-card">
+                <BaseCard className="help-card-v2" style={{ textAlign: 'center' }}>
                     <h3>Need Help?</h3>
-                    <p>If you have any questions about your application, contact our support team.</p>
+                    <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>If you have any questions about your application, contact our support team.</p>
                     <div className="help-contacts">
                         <a href="tel:+918888888888" className="help-link">
                             Call: +91 8888 888 888
@@ -153,7 +157,7 @@ export default function UserTrackerPage() {
                             Email: support@magicbus.org
                         </a>
                     </div>
-                </div>
+                </BaseCard>
             </div>
         </div>
     );
