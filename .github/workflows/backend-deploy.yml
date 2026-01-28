@@ -30,9 +30,24 @@ jobs:
           pip install -r requirements.txt
           python -m pip install -r requirements.txt
 
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7480F4CBD16442C280F3ADF7E06B217F }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C3685F64E80B451EA1C5C58C06E8AB55 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BFCBAF7AB11B4157BC2783D7DDC30BEF }}
+
+
       - name: Deploy backend
         uses: azure/webapps-deploy@v3
         with:
           app-name: backend-yourapp
           publish-profile: ${{ secrets.AZURE_BACKEND_PUBLISH_PROFILE }}
           package: backend
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
+        with:
+          app-name: 'Backend-MagicBus-FraudBuster'
+          slot-name: 'Production'
