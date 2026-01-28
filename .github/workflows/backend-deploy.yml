@@ -12,42 +12,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Verify Python version
+      - name: Verify Python
         run: |
           python --version
-          which python
           python -m pip --version
 
       - name: Install dependencies
         run: |
           cd backend
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
           python -m pip install -r requirements.txt
 
-      - name: Login to Azure
+      - name: Login to Azure (Service Principal)
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7480F4CBD16442C280F3ADF7E06B217F }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C3685F64E80B451EA1C5C58C06E8AB55 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_BFCBAF7AB11B4157BC2783D7DDC30BEF }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-
-      - name: Deploy backend
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: backend-yourapp
-          publish-profile: ${{ secrets.AZURE_BACKEND_PUBLISH_PROFILE }}
-          package: backend
-
-      - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v3
-        id: deploy-to-webapp
-        with:
-          app-name: 'Backend-MagicBus-FraudBuster'
-          slot-name: 'Production'
+      - name: Deploy backend to Azure App Service
+        run: |
+          az webapp deploy \
+            --resource-group FraudBuster \
+            --name Backend-MagicBus-FraudBuster \
+            --src-path backend
