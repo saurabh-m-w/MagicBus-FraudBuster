@@ -1,7 +1,3 @@
-# Docs:
-# - Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# - Python on App Service + GitHub Actions: https://aka.ms/python-webapps-actions
-
 name: Build and deploy Python backend to Azure Web App - pathfinder-backend
 
 on:
@@ -26,8 +22,7 @@ jobs:
         with:
           python-version: "3.10"
 
-      # Optional: quick local validation of dependencies.
-      # You can remove this block to speed up the pipeline.
+      # Optional: local validation (can remove to speed up)
       - name: (Optional) Validate backend dependencies
         working-directory: backend
         run: |
@@ -36,33 +31,32 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Upload ONLY the backend folder to the artifact store.
-      # Exclude venvs, node_modules, tests, and git data to reduce payload.
-      - name: Upload artifact (backend only)
+      # Create a zip that contains ONLY the backend/ folder contents
+      - name: Create backend zip
+        run: |
+          rm -f backend.zip
+          # Zip the contents of backend/ (not the venv or node_modules)
+          cd backend
+          zip -r ../backend.zip . -x "antenv/*" ".venv/*" "venv/*" "node_modules/*" ".git/*"
+
+      - name: Upload artifact (backend.zip)
         uses: actions/upload-artifact@v4
         with:
-          name: backend-artifact
-          path: |
-            backend/
-            !backend/antenv/
-            !backend/.venv/
-            !backend/venv/
-            !backend/node_modules/
-            !backend/.git/
-            !backend/.gitignore
+          name: backend-zip
+          path: backend.zip
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-      - name: Download artifact from build job
+      - name: Download backend zip artifact
         uses: actions/download-artifact@v4
         with:
-          name: backend-artifact
+          name: backend-zip
           path: ./deploy_payload
 
-      # Deploy the backend folder explicitly via `package`.
+      # Deploy the exact zip file path
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -70,4 +64,4 @@ jobs:
           app-name: "pathfinder-backend"   # <-- Your App Service name
           slot-name: "Production"
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F51FBAF64B214CD4842F9ACC4763F42F }}
-          package: ./deploy_payload/backend
+          package: ./deploy_payload/backend.zip
