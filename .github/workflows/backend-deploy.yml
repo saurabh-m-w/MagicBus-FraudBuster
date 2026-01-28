@@ -42,3 +42,4 @@ jobs:
             --resource-group FraudBuster \
             --name Backend-MagicBus-FraudBuster \
             --src-path backend
+            
