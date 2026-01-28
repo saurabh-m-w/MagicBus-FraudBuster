@@ -1,0 +1,13 @@
+{
+  "message_template": "Hi {name}, welcome to Magic Bus! Join our free skill training program.",
+  "recipients": [
+    {
+      "to": "whatsapp:+919922982834",
+      "name": "Yash"
+    },
+    {
+      "to": "whatsapp:+917893889642",
+      "name": "Saurabh"
+    }
+  ]
+}
