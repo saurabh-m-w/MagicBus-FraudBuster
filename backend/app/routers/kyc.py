@@ -23,7 +23,7 @@ class AadharOTPRequest(BaseModel):
 
 
 class AadharOTPVerifyRequest(BaseModel):
-    reference_id: int
+    reference_id: str
     otp: str
 
 
@@ -77,8 +77,17 @@ async def verify_aadhaar_otp(
     current_youth: models.Youth = Depends(get_current_youth),
     db: Session = Depends(get_db)
 ):
+    print(f"[KYC] Verifying OTP - reference_id: {request.reference_id}, otp: {request.otp}")
+    
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
+            payload = {
+                "@entity": "in.co.sandbox.kyc.aadhaar.okyc.request",
+                "reference_id": str(request.reference_id),
+                "otp": str(request.otp)
+            }
+            print(f"[KYC] Sending to Sandbox: {payload}")
+            
             response = await client.post(
                 f"{SANDBOX_API_BASE}/kyc/aadhaar/okyc/otp/verify",
                 headers={
@@ -87,12 +96,11 @@ async def verify_aadhaar_otp(
                     "Authorization": SANDBOX_AUTH_KEY,
                     "Content-Type": "application/json"
                 },
-                json={
-                    "@entity": "in.co.sandbox.kyc.aadhaar.okyc.request",
-                    "reference_id": request.reference_id,
-                    "otp": request.otp
-                }
+                json=payload
             )
+            
+            print(f"[KYC] Sandbox response status: {response.status_code}")
+            print(f"[KYC] Sandbox response body: {response.text}")
             
             if response.status_code == 200:
                 result = response.json()

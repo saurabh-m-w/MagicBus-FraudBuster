@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { DataCard, BaseCard } from '../../components/cards';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -24,7 +24,7 @@ export default function MarketingPage() {
         }
     };
 
-    useState(() => {
+    useEffect(() => {
         checkWhatsAppStatus();
     }, []);
 

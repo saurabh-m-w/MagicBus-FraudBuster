@@ -176,7 +176,7 @@ export default function ProfilePage() {
                 setAadharOTP(prev => ({
                     ...prev,
                     step: 'verify',
-                    referenceId: data.reference_id,
+                    referenceId: String(data.reference_id),
                     loading: false,
                     error: null
                 }));
@@ -213,8 +213,8 @@ export default function ProfilePage() {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    reference_id: aadharOTP.referenceId,
-                    otp: aadharOTP.otp
+                    reference_id: String(aadharOTP.referenceId),
+                    otp: String(aadharOTP.otp)
                 })
             });
             
