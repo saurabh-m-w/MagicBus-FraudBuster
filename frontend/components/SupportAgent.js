@@ -180,14 +180,38 @@ export default function SupportAgent() {
 
                 {/* ElevenLabs Widget Container */}
                 <div style={{ 
-                    minHeight: '400px',
+                    minHeight: '350px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    padding: '1rem'
                 }}>
                     {isLoaded ? (
-                        <elevenlabs-convai agent-id="agent_9201kg3767sae4xvfm100h0vym8d"></elevenlabs-convai>
+                        <>
+                            <elevenlabs-convai agent-id="agent_9201kg3767sae4xvfm100h0vym8d"></elevenlabs-convai>
+                            
+                            {/* Demo Notice */}
+                            <div style={{
+                                marginTop: '1rem',
+                                padding: '0.75rem 1rem',
+                                background: 'rgba(99, 102, 241, 0.1)',
+                                border: '1px solid rgba(99, 102, 241, 0.3)',
+                                borderRadius: '8px',
+                                fontSize: '0.75rem',
+                                color: 'var(--text-secondary)',
+                                textAlign: 'center',
+                                maxWidth: '320px'
+                            }}>
+                                <div style={{ fontWeight: '600', color: 'var(--primary)', marginBottom: '0.25rem' }}>
+                                    Demo Mode - Real Integration
+                                </div>
+                                <div>
+                                    This is a live ElevenLabs ConvAI integration. In production, 
+                                    unlimited conversations with voice + multilingual support.
+                                </div>
+                            </div>
+                        </>
                     ) : (
                         <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
                             <div className="spinner" style={{ margin: '0 auto 1rem' }}></div>
