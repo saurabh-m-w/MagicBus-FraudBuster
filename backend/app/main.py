@@ -19,9 +19,7 @@ app = FastAPI(
 # Allow frontends served from localhost and from the LAN IP
 # that Next.js prints (e.g. 97.85.133.0:3000).
 allowed_origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://97.85.133.0:3000",
+    "*"
 ]
 
 app.add_middleware(
