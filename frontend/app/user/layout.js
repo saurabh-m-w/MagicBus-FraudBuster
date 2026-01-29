@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import AIChatWidget from '../../components/AIChatWidget';
+import SupportAgent from '../../components/SupportAgent';
 import ThemeToggle from '../../components/ThemeToggle';
 
 export default function UserLayout({ children }) {
@@ -76,6 +77,7 @@ export default function UserLayout({ children }) {
                 {children}
             </main>
             <AIChatWidget />
+            <SupportAgent />
         </div>
     );
 }
