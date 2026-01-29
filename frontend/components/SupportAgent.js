@@ -7,7 +7,7 @@ export default function SupportAgent() {
     const [isMinimized, setIsMinimized] = useState(true);
 
     useEffect(() => {
-        // Load ElevenLabs ConvAI widget script
+        // Load voice support widget script
         const script = document.createElement('script');
         script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
         script.async = true;
@@ -178,7 +178,7 @@ export default function SupportAgent() {
                     </div>
                 </div>
 
-                {/* ElevenLabs Widget Container */}
+                {/* Voice Support Widget Container */}
                 <div style={{ 
                     minHeight: '350px',
                     display: 'flex',
@@ -204,18 +204,18 @@ export default function SupportAgent() {
                                 maxWidth: '320px'
                             }}>
                                 <div style={{ fontWeight: '600', color: 'var(--primary)', marginBottom: '0.25rem' }}>
-                                    Demo Mode - Real Integration
+                                    PathFinder Support Agent
                                 </div>
                                 <div>
-                                    This is a live ElevenLabs ConvAI integration. In production, 
-                                    unlimited conversations with voice + multilingual support.
+                                    Real-time AI voice assistant. Ask questions, get guidance, 
+                                    and receive support in multiple languages.
                                 </div>
                             </div>
                         </>
                     ) : (
                         <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
                             <div className="spinner" style={{ margin: '0 auto 1rem' }}></div>
-                            <div>Loading AI Support Agent...</div>
+                            <div>Loading PathFinder Support Agent...</div>
                         </div>
                     )}
                 </div>
@@ -229,7 +229,7 @@ export default function SupportAgent() {
                     color: 'var(--text-secondary)',
                     textAlign: 'center'
                 }}>
-                    Powered by ElevenLabs ConvAI | Click microphone or type to start
+                    PathFinder AI Support | Click microphone or type to start
                 </div>
             </div>
 
