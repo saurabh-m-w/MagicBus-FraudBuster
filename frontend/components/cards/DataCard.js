@@ -3,6 +3,7 @@ import BaseCard from './BaseCard';
 
 export default function DataCard({ 
     title, 
+    subtitle,
     action,
     children, 
     className = '',
@@ -13,7 +14,18 @@ export default function DataCard({
         <BaseCard className={`data-card ${className}`} padding="none">
             {title && (
                 <div className="data-card-header">
-                    <h2 className="data-card-title">{title}</h2>
+                    <div>
+                        <h2 className="data-card-title">{title}</h2>
+                        {subtitle && (
+                            <p style={{ 
+                                fontSize: '0.75rem', 
+                                color: 'var(--text-secondary)', 
+                                margin: '0.25rem 0 0 0' 
+                            }}>
+                                {subtitle}
+                            </p>
+                        )}
+                    </div>
                     {action && <div className="data-card-action">{action}</div>}
                 </div>
             )}
